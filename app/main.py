@@ -55,6 +55,10 @@ class Product(BaseModel):
     user_logo: str
     generated_data: GeneratedData
 
+@app.get("/")
+async def read_root():
+    return {"message": "Server is working"}\
+    
 # Authentication endpoints
 @app.post("/auth/register")
 async def register(user: User):
