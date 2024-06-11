@@ -3,12 +3,16 @@ from pydantic import BaseModel
 from .database import init_db
 from .auth import register_user, login_user
 from .product import upload_product_details, get_user_products
-from .s3_utils import upload_file_to_s3, upload_files_to_s3
+from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
 
 app = FastAPI()
 
 # Initialize MongoDB
 init_db()
+
+# Check S3 connection
+if not check_s3_connection():
+    raise RuntimeError("Failed to connect to S3. Check your AWS credentials and network connection.")
 
 # Models
 class User(BaseModel):
@@ -63,21 +67,21 @@ async def login(login_data: LoginData):
 # S3 upload endpoints
 @app.post("/upload/s3")
 async def upload_to_s3(file: UploadFile = File(...)):
-    link = upload_file_to_s3(file.file, "your_bucket_name", f"uploads/{file.filename}")
+    link = upload_file_to_s3(file.file, "vyaparbackend", f"uploads/{file.filename}")
     if not link:
         raise HTTPException(status_code=500, detail="Error uploading file to S3")
     return {"s3_link": link}
 
 @app.post("/upload/s3/multiple")
 async def upload_multiple_to_s3(files: list[UploadFile] = File(...)):
-    links = upload_files_to_s3(files, "your_bucket_name", "uploads/")
+    links = upload_files_to_s3(files, "vyaparbackend", "uploads/")
     if not links:
         raise HTTPException(status_code=500, detail="Error uploading files to S3")
     return {"s3_links": links}
 
 @app.post("/upload/s3/generated")
 async def upload_generated_to_s3(file: UploadFile = File(...)):
-    link = upload_file_to_s3(file.file, "your_bucket_name", f"generated/{file.filename}")
+    link = upload_file_to_s3(file.file, "vyaparbackend", f"generated/{file.filename}")
     if not link:
         raise HTTPException(status_code=500, detail="Error uploading generated file to S3")
     return {"s3_link": link}

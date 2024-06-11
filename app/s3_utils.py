@@ -11,6 +11,13 @@ s3 = boto3.client(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
 
+def check_s3_connection():
+    try:
+        s3.list_buckets()  # Attempt to list S3 buckets to verify connection
+        return True
+    except NoCredentialsError:
+        return False
+
 def upload_file_to_s3(file, bucket_name, object_name):
     try:
         s3.upload_fileobj(file, bucket_name, object_name)
