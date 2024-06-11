@@ -4,6 +4,16 @@ from .database import init_db
 from .auth import register_user, login_user
 from .product import upload_product_details, get_user_products
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
+from fastapi.middleware.cors import CORSMiddleware
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 app = FastAPI()
 
