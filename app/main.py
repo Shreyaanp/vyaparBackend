@@ -1,10 +1,19 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .database import init_db
 from .auth import register_user, login_user
 from .product import upload_product_details, get_user_products
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
-from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# Initialize MongoDB
+init_db()
+
+# Check S3 connection
+if not check_s3_connection():
+    raise RuntimeError("Failed to connect to S3. Check your AWS credentials and network connection.")
 
 # CORS configuration
 app.add_middleware(
@@ -15,14 +24,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-app = FastAPI()
-
-# Initialize MongoDB
-init_db()
-
-# Check S3 connection
-if not check_s3_connection():
-    raise RuntimeError("Failed to connect to S3. Check your AWS credentials and network connection.")
+# Health check endpoint
+@app.get("/")
+async def read_root():
+    return {"message": "Server is working"}
 
 # Models
 class User(BaseModel):
@@ -65,10 +70,6 @@ class Product(BaseModel):
     user_logo: str
     generated_data: GeneratedData
 
-@app.get("/")
-async def read_root():
-    return {"message": "Server is working"}\
-    
 # Authentication endpoints
 @app.post("/auth/register")
 async def register(user: User):
