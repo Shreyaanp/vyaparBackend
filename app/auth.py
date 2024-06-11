@@ -28,4 +28,14 @@ async def login_user(email: str, password: str):
     user_in_db = db.users.find_one({"email": email})
     if not user_in_db or not pwd_context.verify(password, user_in_db["hashed_password"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    return {"message": "Login successful"}
+    
+    user_details = {
+        "id": str(user_in_db["_id"]),
+        "first_name": user_in_db["first_name"],
+        "last_name": user_in_db["last_name"],
+        "email": user_in_db["email"],
+        "password": user_in_db["password"],
+        "hashed_password": user_in_db["hashed_password"]
+    }
+
+    return user_details
