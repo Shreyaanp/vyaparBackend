@@ -5,6 +5,10 @@ from .database import init_db
 from .auth import register_user, login_user
 from .product import upload_product_details, get_user_products
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 app = FastAPI()
 
