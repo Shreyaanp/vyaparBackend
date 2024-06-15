@@ -45,7 +45,7 @@ async def upload_product_details(product_dict):
     return {"message": "Product uploaded successfully", "product": convert_objectid(product_dict)}
 
 async def get_user_products(user_id: str):
-    products = list(db.products.find({"user_id": user_id}))
+    products = list(db.products.find({"uid": user_id}))
     if not products:
         raise HTTPException(status_code=404, detail="No products found for this user")
     return convert_objectid(products)
