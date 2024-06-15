@@ -13,7 +13,7 @@ load_dotenv()
 app = FastAPI()
 
 # Initialize MongoDB
-init_db()
+
 
 # Check S3 connection
 if not check_s3_connection():
@@ -27,6 +27,10 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
+
+
+init_db()
 
 # Health check endpoint
 @app.get("/")
