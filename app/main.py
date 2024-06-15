@@ -7,13 +7,12 @@ from .product import upload_product_details, get_user_products
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 app = FastAPI()
 
 # Initialize MongoDB
-
+init_db()
 
 # Check S3 connection
 if not check_s3_connection():
@@ -23,6 +22,7 @@ if not check_s3_connection():
 origins = [
     "http://localhost:5173",
     "https://backend.vlai.in",
+    "https://vyaparfrontend.vercel.app",
     # Add more origins if needed
 ]
 
@@ -33,9 +33,6 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-
-
-init_db()
 
 # Health check endpoint
 @app.get("/")
