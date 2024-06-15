@@ -20,10 +20,16 @@ if not check_s3_connection():
     raise RuntimeError("Failed to connect to S3. Check your AWS credentials and network connection.")
 
 # CORS configuration
+origins = [
+    "http://localhost:5173",
+    "https://backend.vlai.in",
+    # Add more origins if needed
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Allows the frontend origin
-    allow_credentials=False,  # Don't allow credentials
+    allow_origins=origins,  # Set specific origins
+    allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
