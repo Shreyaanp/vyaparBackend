@@ -4,17 +4,17 @@ from bson import ObjectId
 from .database import db
 
 class ResponseData(BaseModel):
-    Product_Regional_Names: list[str]
-    Product_Name: str
-    Product_Description: str
-    Product_Variation: str
-    About_Product: list[str]
-    Product_Tagline: str
-    Product_Prompt: str
-    Market_PainPoints: list[str]
-    Customer_Acquisition: list[str]
-    Market_Entry_Strategy: list[str]
-    Seo_Friendly_Tags: list[str]
+    ProductRegionalNames: list[str]
+    ProductName: str
+    ProductDescription: str
+    ProductVariation: list[str]
+    AboutProduct: list[str]
+    ProductTagline: str
+    ProductPrompt: str
+    MarketPainPoints: list[str]
+    CustomerAcquisition: list[str]
+    MarketEntryStrategy: list[str]
+    SeoFriendlyTags: list[str]
 
 class Product(BaseModel):
     inputLanguage: str
