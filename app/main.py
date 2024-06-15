@@ -51,17 +51,17 @@ class LoginData(BaseModel):
     password: str
 
 class ResponseData(BaseModel):
-    Product_Regional_Names: list
+    Product_Regional_Names: list[str]
     Product_Name: str
     Product_Description: str
     Product_Variation: str
-    About_Product: list
+    About_Product: list[str]
     Product_Tagline: str
     Product_Prompt: str
-    Market_PainPoints: list
-    Customer_Acquisition: list
-    Market_Entry_Strategy: list
-    Seo_Friendly_Tags: list
+    Market_PainPoints: list[str]
+    Customer_Acquisition: list[str]
+    Market_Entry_Strategy: list[str]
+    Seo_Friendly_Tags: list[str]
 
 class Product(BaseModel):
     inputLanguage: str
