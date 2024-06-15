@@ -7,7 +7,7 @@ class ResponseData(BaseModel):
     ProductRegionalNames: list[str]
     ProductName: str
     ProductDescription: str
-    ProductVariation: list[str]
+    ProductVariation: str
     AboutProduct: list[str]
     ProductTagline: str
     ProductPrompt: str
@@ -20,10 +20,10 @@ class Product(BaseModel):
     inputLanguage: str
     shopName: str
     sellerState: str
-    productLanguage: str
+    productlanguage: str
     productCategory: str
     productTitle: str
-    pricing: float
+    pricing: str  # Ensure this matches the type of data you're sending
     productDescription: str
     productVariation: str
     response: ResponseData
