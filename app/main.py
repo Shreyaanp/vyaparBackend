@@ -22,12 +22,11 @@ if not check_s3_connection():
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
+    allow_origins=["http://localhost:5173"],  # Allows the frontend origin
+    allow_credentials=False,  # Don't allow credentials
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-
 
 
 init_db()
