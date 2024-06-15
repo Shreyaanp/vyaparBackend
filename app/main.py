@@ -50,35 +50,29 @@ class LoginData(BaseModel):
     email: str
     password: str
 
-class SellerDetails(BaseModel):
-    shop_name: str
-    seller_state: str
-    product_language: str
-    product_category: str
-
-class ProductDetails(BaseModel):
-    product_title: str
-    pricing: float
-    product_description: str = None
-    product_variation: str = None
-
-class GeneratedData(BaseModel):
-    product_regional_names: list
-    product_name: str
-    product_description: str
-    about_product: list
-    product_tagline: str
-    product_prompt: str
-    seo_friendly_tags: list
+class ResponseData(BaseModel):
+    Product_Regional_Names: list
+    Product_Name: str
+    Product_Description: str
+    About_Product: list
+    Product_Tagline: str
+    Product_Prompt: str
+    Market_PainPoints: list
+    Customer_Acquisition: list
+    Market_Entry_Strategy: list
+    Seo_Friendly_Tags: list
 
 class Product(BaseModel):
-    user_id: str
-    language: str
-    seller_details: SellerDetails
-    product_details: ProductDetails
-    product_image: str
-    user_logo: str
-    generated_data: GeneratedData
+    inputLanguage: str
+    shopName: str
+    sellerState: str
+    productLanguage: str
+    productCategory: str
+    productTitle: str
+    pricing: float
+    productDescription: str
+    productVariation: str
+    response: ResponseData
 
 # Authentication endpoints
 @app.post("/auth/register")
@@ -119,3 +113,28 @@ async def upload_product(product: Product):
 @app.get("/product/{user_id}")
 async def get_products(user_id: str):
     return await get_user_products(user_id)
+
+from fastapi import HTTPException
+from bson import ObjectId
+from .database import db
+
+def convert_objectid(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    if isinstance(obj, dict):
+        return {k: convert_objectid(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [convert_objectid(i) for i in obj]
+    return obj
+
+async def upload_product_details(product_dict):
+    result = db.products.insert_one(product_dict)
+    if result.inserted_id:
+        product_dict["_id"] = str(result.inserted_id)
+    return {"message": "Product uploaded successfully", "product": convert_objectid(product_dict)}
+
+async def get_user_products(user_id: str):
+    products = list(db.products.find({"user_id": user_id}))
+    if not products:
+        raise HTTPException(status_code=404, detail="No products found for this user")
+    return convert_objectid(products)
