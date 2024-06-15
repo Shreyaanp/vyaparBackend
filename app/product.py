@@ -3,35 +3,31 @@ from pydantic import BaseModel
 from bson import ObjectId
 from .database import db
 
-class SellerDetails(BaseModel):
-    shop_name: str
-    seller_state: str
-    product_language: str
-    product_category: str
-
-class ProductDetails(BaseModel):
-    product_title: str
-    pricing: float
-    product_description: str = None
-    product_variation: str = None
-
-class GeneratedData(BaseModel):
-    product_regional_names: list
-    product_name: str
-    product_description: str
-    about_product: list
-    product_tagline: str
-    product_prompt: str
-    seo_friendly_tags: list
+class ResponseData(BaseModel):
+    Product_Regional_Names: list
+    Product_Name: str
+    Product_Description: str
+    Product_Variation: str
+    About_Product: list
+    Product_Tagline: str
+    Product_Prompt: str
+    Market_PainPoints: list
+    Customer_Acquisition: list
+    Market_Entry_Strategy: list
+    Seo_Friendly_Tags: list
 
 class Product(BaseModel):
-    user_id: str
-    language: str
-    seller_details: SellerDetails
-    product_details: ProductDetails
-    product_image: str
-    user_logo: str
-    generated_data: GeneratedData
+    inputLanguage: str
+    shopName: str
+    sellerState: str
+    productLanguage: str
+    productCategory: str
+    productTitle: str
+    pricing: float
+    productDescription: str
+    productVariation: str
+    response: ResponseData
+    uid: str
 
 def convert_objectid(obj):
     if isinstance(obj, ObjectId):
