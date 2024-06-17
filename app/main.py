@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
 from .database import init_db
 from .auth import register_user, login_user
-from .product import upload_product_details, get_user_products
+from .product import upload_product_details, get_user_products, update_product_details, delete_product
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
 from dotenv import load_dotenv
 
@@ -51,17 +52,17 @@ class LoginData(BaseModel):
     password: str
 
 class ResponseData(BaseModel):
-    ProductRegionalNames: list[str]
+    ProductRegionalNames: List[str]
     ProductName: str
     ProductDescription: str
-    ProductVariation: str
-    AboutProduct: list[str]
+    ProductVariation: List[str]
+    AboutProduct: List[str]
     ProductTagline: str
     ProductPrompt: str
-    MarketPainPoints: list[str]
-    CustomerAcquisition: list[str]
-    MarketEntryStrategy: list[str]
-    SeoFriendlyTags: list[str]
+    MarketPainPoints: List[str]
+    CustomerAcquisition: List[str]
+    MarketEntryStrategy: List[str]
+    SeoFriendlyTags: List[str]
 
 class Product(BaseModel):
     inputLanguage: str
@@ -70,7 +71,7 @@ class Product(BaseModel):
     productlanguage: str
     productCategory: str
     productTitle: str
-    pricing: str  # Ensure this matches the type of data you're sending
+    pricing: str
     productDescription: str
     productVariation: str
     response: ResponseData
@@ -94,7 +95,7 @@ async def upload_to_s3(file: UploadFile = File(...)):
     return {"s3_link": link}
 
 @app.post("/upload/s3/multiple")
-async def upload_multiple_to_s3(files: list[UploadFile] = File(...)):
+async def upload_multiple_to_s3(files: List[UploadFile] = File(...)):
     links = upload_files_to_s3(files, "vyaparbackend", "uploads/")
     if not links:
         raise HTTPException(status_code=500, detail="Error uploading files to S3")
@@ -115,3 +116,11 @@ async def upload_product(product: Product):
 @app.get("/product/{user_id}")
 async def get_products(user_id: str):
     return await get_user_products(user_id)
+
+@app.put("/product/{product_id}")
+async def update_product(product_id: str, product: Product):
+    return await update_product_details(product_id, product)
+
+@app.delete("/product/{product_id}")
+async def delete_product(product_id: str):
+    return await delete_product(product_id)
