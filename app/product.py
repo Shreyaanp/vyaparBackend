@@ -1,13 +1,24 @@
 from fastapi import HTTPException
 from pydantic import BaseModel
 from bson import ObjectId
-from typing import Dict, Any
+from typing import Dict, Any, List
 from .database import db
 import uuid
 
 class Product(BaseModel):
     uid: str
-    data: Dict[str, Any]
+    inputLanguage: str
+    shopName: str
+    sellerState: str
+    productlanguage: str
+    productCategory: str
+    productTitle: str
+    pricing: str
+    productDescription: str
+    productVariation: str
+    response: Dict[str, Any]
+    companyLogo: str
+    images: List[str]
 
 def convert_objectid(obj):
     if isinstance(obj, ObjectId):
@@ -54,8 +65,8 @@ async def publish_product(uid: str, data: Dict[str, Any]):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-async def get_public_product(uid: str):
-    public_product = db.public.find_one({"uid": uid})
+async def get_public_product(shareable_id: str):
+    public_product = db.public.find_one({"shareable_id": shareable_id})
     if not public_product:
         raise HTTPException(status_code=404, detail="Product not found")
     return public_product['data']

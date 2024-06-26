@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Dict, Any, List
 from .database import init_db
 from .auth import register_user, login_user
-from .product import upload_product_details, get_user_products, update_product_details, delete_product_helper,  publish_product, get_public_product
+from .product import upload_product_details, get_user_products, update_product_details, delete_product_helper, publish_product, get_public_product
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
 from dotenv import load_dotenv
 
@@ -51,20 +51,8 @@ class LoginData(BaseModel):
     email: str
     password: str
 
-class ResponseData(BaseModel):
-    ProductRegionalNames: List[str]
-    ProductName: str
-    ProductDescription: str
-    ProductVariation: str
-    AboutProduct: List[str]
-    ProductTagline: str
-    ProductPrompt: str
-    MarketPainPoints: List[str]
-    CustomerAcquisition: List[str]
-    MarketEntryStrategy: List[str]
-    SeoFriendlyTags: List[str]
-
 class Product(BaseModel):
+    uid: str
     inputLanguage: str
     shopName: str
     sellerState: str
@@ -74,10 +62,9 @@ class Product(BaseModel):
     pricing: str
     productDescription: str
     productVariation: str
-    response: ResponseData
+    response: Dict[str, Any]
     companyLogo: str
     images: List[str]
-    uid: str
 
 # Authentication endpoints
 @app.post("/auth/register")
@@ -121,7 +108,7 @@ async def get_products(user_id: str):
 
 @app.put("/product/{product_id}")
 async def update_product(product_id: str, product: Product):
-    return await update_product_details(product_id, product)
+    return await update_product_details(product_id, product.dict())
 
 @app.delete("/product/{product_id}")
 async def delete_product(product_id: str):
@@ -131,6 +118,6 @@ async def delete_product(product_id: str):
 async def publish_product_endpoint(uid: str = Body(...), data: Dict[str, Any] = Body(...)):
     return await publish_product(uid, data)
 
-@app.get("/public/{uid}")
-async def get_public_product_endpoint(uid: str):
-    return await get_public_product(uid)
+@app.get("/public/{shareable_id}")
+async def get_public_product_endpoint(shareable_id: str):
+    return await get_public_product(shareable_id)
