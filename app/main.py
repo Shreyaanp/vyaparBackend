@@ -1,10 +1,10 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import Dict, Any, List
 from .database import init_db
 from .auth import register_user, login_user
-from .product import upload_product_details, get_user_products, update_product_details, delete_product
+from .product import upload_product_details, get_user_products, update_product_details, delete_product_helper,  publish_product, get_public_product
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
 from dotenv import load_dotenv
 
@@ -55,7 +55,7 @@ class ResponseData(BaseModel):
     ProductRegionalNames: List[str]
     ProductName: str
     ProductDescription: str
-    ProductVariation: List[str]
+    ProductVariation: str
     AboutProduct: List[str]
     ProductTagline: str
     ProductPrompt: str
@@ -75,6 +75,8 @@ class Product(BaseModel):
     productDescription: str
     productVariation: str
     response: ResponseData
+    companyLogo: str
+    images: List[str]
     uid: str
 
 # Authentication endpoints
@@ -123,4 +125,12 @@ async def update_product(product_id: str, product: Product):
 
 @app.delete("/product/{product_id}")
 async def delete_product(product_id: str):
-    return await delete_product(product_id)
+    return await delete_product_helper(product_id)
+
+@app.post("/product/publish")
+async def publish_product_endpoint(uid: str = Body(...), data: Dict[str, Any] = Body(...)):
+    return await publish_product(uid, data)
+
+@app.get("/public/{uid}")
+async def get_public_product_endpoint(uid: str):
+    return await get_public_product(uid)

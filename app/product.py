@@ -1,34 +1,13 @@
 from fastapi import HTTPException
 from pydantic import BaseModel
 from bson import ObjectId
+from typing import Dict, Any
 from .database import db
-from typing import List
-
-class ResponseData(BaseModel):
-    ProductRegionalNames: List[str]
-    ProductName: str
-    ProductDescription: str
-    ProductVariation: List[str]
-    AboutProduct: List[str]
-    ProductTagline: str
-    ProductPrompt: str
-    MarketPainPoints: List[str]
-    CustomerAcquisition: List[str]
-    MarketEntryStrategy: List[str]
-    SeoFriendlyTags: List[str]
+import uuid
 
 class Product(BaseModel):
-    inputLanguage: str
-    shopName: str
-    sellerState: str
-    productlanguage: str
-    productCategory: str
-    productTitle: str
-    pricing: str
-    productDescription: str
-    productVariation: str
-    response: ResponseData
     uid: str
+    data: Dict[str, Any]
 
 def convert_objectid(obj):
     if isinstance(obj, ObjectId):
@@ -51,14 +30,32 @@ async def get_user_products(user_id: str):
         raise HTTPException(status_code=404, detail="No products found for this user")
     return convert_objectid(products)
 
-async def update_product_details(product_id: str, product: Product):
-    update_result = db.products.update_one({"_id": ObjectId(product_id)}, {"$set": product.dict()})
+async def update_product_details(product_id: str, product: Dict[str, Any]):
+    update_result = db.products.update_one({"_id": ObjectId(product_id)}, {"$set": product})
     if update_result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product updated successfully"}
 
-async def delete_product(product_id: str):
+async def delete_product_helper(product_id: str):
     delete_result = db.products.delete_one({"_id": ObjectId(product_id)})
     if delete_result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product deleted successfully"}
+
+async def publish_product(uid: str, data: Dict[str, Any]):
+    try:
+        shareable_id = str(uuid.uuid4())
+        public_data = {"uid": uid, "data": data, "shareable_id": shareable_id}
+        result = db.public.insert_one(public_data)
+        if result.inserted_id:
+            return {"message": "Product published successfully", "shareable_id": shareable_id}
+        else:
+            raise HTTPException(status_code=500, detail="Error publishing product")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def get_public_product(uid: str):
+    public_product = db.public.find_one({"uid": uid})
+    if not public_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return public_product['data']
