@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Any, List
 from .database import init_db
+from .store import create_store_product, get_store_products, update_store_product, delete_store_product
 from .auth import register_user, login_user
 from .product import upload_product_details, get_user_products, update_product_details, delete_product_helper, publish_product, get_public_product
 from .s3_utils import upload_file_to_s3, upload_files_to_s3, check_s3_connection
-from .store import create_store_product, get_store_products, update_store_product, delete_store_product
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -96,6 +96,7 @@ class BankDetails(BaseModel):
     ifsc: str
 
 class ProductDetails(BaseModel):
+    user_id: str
     address: str
     latitude: float
     longitude: float
@@ -138,6 +139,30 @@ async def upload_generated_to_s3(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="Error uploading generated file to S3")
     return {"s3_link": link}
 
+# Product endpoints
+@app.post("/product/upload")
+async def upload_product(product: Product):
+    return await upload_product_details(product.dict())
+
+@app.get("/product/{user_id}")
+async def get_products(user_id: str):
+    return await get_user_products(user_id)
+
+@app.put("/product/{product_id}")
+async def update_product(product_id: str, product: Product):
+    return await update_product_details(product_id, product.dict())
+
+@app.delete("/product/{product_id}")
+async def delete_product(product_id: str):
+    return await delete_product_helper(product_id)
+
+@app.post("/product/publish")
+async def publish_product_endpoint(uid: str = Body(...), data: Dict[str, Any] = Body(...)):
+    return await publish_product(uid, data)
+
+@app.get("/public/{shareable_id}")
+async def get_public_product_endpoint(shareable_id: str):
+    return await get_public_product(shareable_id)
 # Store endpoints
 @app.post("/store")
 async def create_store_product_endpoint(product: ProductDetails):

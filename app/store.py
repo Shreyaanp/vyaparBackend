@@ -37,6 +37,7 @@ class BankDetails(BaseModel):
     ifsc: str
 
 class ProductDetails(BaseModel):
+    user_id: str
     address: str
     latitude: float
     longitude: float
