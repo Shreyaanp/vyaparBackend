@@ -68,7 +68,6 @@ class Product(BaseModel):
     images: List[str]
 
 class ShopAddress(BaseModel):
-    state: str
     flat: str
     street: str
     landmark: str
@@ -97,8 +96,6 @@ class BankDetails(BaseModel):
     ifsc: str
 
 class ProductDetails(BaseModel):
-    user_id: str
-    productCategory: str
     address: str
     latitude: float
     longitude: float
